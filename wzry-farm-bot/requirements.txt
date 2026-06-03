@@ -1,0 +1,27 @@
+# 核心依赖
+opencv-python>=4.8.0
+numpy>=1.24.0
+Pillow>=10.0.0
+
+# 图像识别与模板匹配
+aircv>=1.0.0
+
+# 文字识别（轻量级）
+easyocr>=1.7.0
+
+# Android 自动化（uiautomator2）
+uiautomator2>=2.16.0
+adb-shell>=0.4.0
+
+# 任务调度
+apscheduler>=3.10.0
+
+# 配置管理
+pydantic>=2.0.0
+PyYAML>=6.0
+
+# 日志
+loguru>=0.7.0
+
+# HTTP请求（如果需要网络功能）
+requests>=2.31.0
