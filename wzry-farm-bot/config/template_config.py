@@ -34,6 +34,18 @@ class TemplateConfig:
     
     # ========== 模板定义（需要你填充图片）==========
     TEMPLATES: Dict[str, TemplateInfo] = {
+        # ----- 游戏启动 -----（新增）
+        "game_start_btn": TemplateInfo(
+            filename="game_start_btn.png",
+            description="游戏启动按钮",
+            threshold=0.8
+        ),
+        "game_loading": TemplateInfo(
+            filename="game_loading.png",
+            description="游戏加载完成标志",
+            threshold=0.8
+        ),
+        
         # ----- 农场入口 -----
         "farm_icon": TemplateInfo(
             filename="farm_icon.png",

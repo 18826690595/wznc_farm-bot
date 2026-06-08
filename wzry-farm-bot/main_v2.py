@@ -121,6 +121,11 @@ class WZRYFarmBotV2:
         }
         
         try:
+            # 0. 进入游戏（新增）
+            if not self.action.enter_game():
+                logger.error("无法进入游戏")
+                return stats
+            
             # 1. 进入农场
             if not self.action.enter_farm():
                 logger.error("无法进入农场")

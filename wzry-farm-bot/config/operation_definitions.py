@@ -32,6 +32,31 @@ class OperationDefinitions:
     
     # ========== 操作流程定义 ==========
     
+    # ----- 进入游戏 -----（新增）
+    ENTER_GAME: List[OperationStep] = [
+        OperationStep(
+            name="点击启动游戏",
+            action="click_template",
+            target="game_start_btn",
+            timeout=10.0,
+            description="点击游戏启动按钮"
+        ),
+        OperationStep(
+            name="等待游戏加载",
+            action="wait",
+            target="5.0",
+            description="等待游戏加载"
+        ),
+        # TODO: 如果需要等待特定界面出现，可以添加：
+        # OperationStep(
+        #     name="等待主界面",
+        #     action="click_template",
+        #     target="game_loading",
+        #     timeout=30.0,
+        #     description="等待游戏加载完成"
+        # ),
+    ]
+    
     # ----- 进入农场 -----
     ENTER_FARM: List[OperationStep] = [
         # TODO: 根据你的游戏界面修改
@@ -196,6 +221,7 @@ class OperationDefinitions:
     def get_operation(cls, name: str) -> Optional[List[OperationStep]]:
         """获取操作流程"""
         operations = {
+            "enter_game": cls.ENTER_GAME,    # 新增
             "enter_farm": cls.ENTER_FARM,
             "harvest": cls.HARVEST,
             "plant": cls.PLANT,
@@ -214,6 +240,7 @@ class OperationDefinitions:
         print("=" * 60)
         
         operations = [
+            ("ENTER_GAME", cls.ENTER_GAME),  # 新增
             ("ENTER_FARM", cls.ENTER_FARM),
             ("HARVEST", cls.HARVEST),
             ("PLANT", cls.PLANT),

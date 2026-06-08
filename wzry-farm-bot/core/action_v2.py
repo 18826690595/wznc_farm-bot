@@ -231,6 +231,19 @@ class ActionExecutorV2:
     
     # ========== 高级操作（封装常用流程）==========
     
+    def enter_game(self) -> bool:
+        """进入游戏"""
+        logger.info("进入游戏...")
+        steps = OperationDefinitions.get_operation("enter_game")
+        if steps:
+            success, msg = self.execute_steps(steps)
+            if success:
+                logger.success("已进入游戏")
+            else:
+                logger.error(f"进入游戏失败: {msg}")
+            return success
+        return False
+    
     def enter_farm(self) -> bool:
         """进入农场"""
         logger.info("进入农场...")
