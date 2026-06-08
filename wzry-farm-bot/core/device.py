@@ -120,6 +120,20 @@ class DeviceManager:
         logger.debug(f"点击坐标: ({x}, {y})")
         time.sleep(duration)
     
+    def long_press(self, x: int, y: int, duration: float = 1.0):
+        """
+        长按屏幕坐标（ADB长按）
+        
+        Args:
+            x: X坐标
+            y: Y坐标
+            duration: 长按时长（秒）
+        """
+        # uiautomator2 的长按方式：swipe 起点和终点相同
+        self.device.swipe(x, y, x, y, duration)
+        logger.debug(f"长按坐标: ({x}, {y}), 时长: {duration}秒")
+        time.sleep(0.1)
+    
     def swipe(self, start: Tuple[int, int], end: Tuple[int, int], duration: float = 0.5):
         """
         滑动屏幕

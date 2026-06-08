@@ -84,6 +84,18 @@ class ActionExecutorV2:
         self.device.tap(x, y)
         self._delay(0.3)
     
+    def long_press(self, x: int, y: int, duration: float = 1.0):
+        """
+        长按坐标
+        
+        Args:
+            x: X坐标
+            y: Y坐标
+            duration: 长按时长
+        """
+        self.device.long_press(x, y, duration)
+        self._delay(0.3)
+    
     def swipe(self, direction: str, distance: int = 300):
         """
         滑动
@@ -204,6 +216,14 @@ class ActionExecutorV2:
         elif action == "click_position":
             x, y = map(int, target.split(","))
             self.click_position(x, y)
+            return True
+        
+        elif action == "long_press":
+            # 格式: "x,y,duration" 或 "x,y"（默认1秒）
+            parts = target.split(",")
+            x, y = int(parts[0]), int(parts[1])
+            duration = float(parts[2]) if len(parts) > 2 else 1.0
+            self.long_press(x, y, duration)
             return True
         
         elif action == "swipe":
