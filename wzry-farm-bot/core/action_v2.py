@@ -84,6 +84,17 @@ class ActionExecutorV2:
         self.device.tap(x, y)
         self._delay(0.3)
     
+    def click_ratio(self, ratio_x: float, ratio_y: float):
+        """
+        按比例点击（适配不同分辨率）
+        
+        Args:
+            ratio_x: X 比例 (0.0~1.0)，0.5 = 屏幕水平中间
+            ratio_y: Y 比例 (0.0~1.0)，0.5 = 屏幕垂直中间
+        """
+        self.device.tap_ratio(ratio_x, ratio_y)
+        self._delay(0.3)
+    
     def long_press(self, x: int, y: int, duration: float = 1.0):
         """
         长按坐标
@@ -225,6 +236,13 @@ class ActionExecutorV2:
         elif action == "click_position":
             # 支持比例和百分比
             self.click_position(coord=target)
+            return True
+
+        elif action == "click_ratio":
+            # 比例点击：target="0.5,0.5" 表示屏幕中央
+            coords = self.action_base.parse_coords(target)
+            if coords and len(coords) == 2:
+                self.click_ratio(ratio_x=coords[0], ratio_y=coords[1])
             return True
 
         elif action == "click_region":

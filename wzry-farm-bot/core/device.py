@@ -120,6 +120,39 @@ class DeviceManager:
         logger.debug(f"点击坐标: ({x}, {y})")
         time.sleep(duration)
     
+    def tap_ratio(self, ratio_x: float, ratio_y: float, duration: float = 0.1):
+        """
+        按比例点击（适配不同分辨率）
+        
+        Args:
+            ratio_x: X 比例 (0.0~1.0)，0.5 = 屏幕水平中间
+            ratio_y: Y 比例 (0.0~1.0)，0.5 = 屏幕垂直中间
+            duration: 按压时长
+            
+        示例:
+            tap_ratio(0.5, 0.5)  # 点击屏幕正中央
+            tap_ratio(0.9, 0.1)  # 点击右上角
+        """
+        w, h = self.screen_size
+        x = int(w * ratio_x)
+        y = int(h * ratio_y)
+        self.tap(x, y, duration)
+        logger.debug(f"比例点击: ({ratio_x:.2f}, {ratio_y:.2f}) -> ({x}, {y})")
+    
+    def ratio_to_pixel(self, ratio_x: float, ratio_y: float) -> Tuple[int, int]:
+        """
+        比例转像素坐标
+        
+        Args:
+            ratio_x: X 比例 (0.0~1.0)
+            ratio_y: Y 比例 (0.0~1.0)
+            
+        Returns:
+            像素坐标 (x, y)
+        """
+        w, h = self.screen_size
+        return (int(w * ratio_x), int(h * ratio_y))
+    
     def long_press(self, x: int, y: int, duration: float = 1.0):
         """
         长按屏幕坐标（ADB长按）
