@@ -1,31 +1,34 @@
-# 王者荣耀农场自动化配置文件
+# 王者荣耀农场自动化配置
 
 # 设备配置
 device:
-  adb_port: 7555              # MuMu模拟器ADB端口
-  screenshot_delay: 0.5       # 截图延迟（秒）
-  connect_timeout: 30         # 连接超时（秒）
+  adb_port: 7555               # MuMu模拟器ADB端口
+  screenshot_format: opencv    # 截图格式
 
 # 农场配置
 farm:
-  harvest_interval: 300       # 收菜检查间隔（秒）
-  steal_interval: 600         # 偷菜检查间隔（秒）
-  bless_interval: 1800        # 祝福检查间隔（秒）
-  default_crop: "小麦"        # 默认种植作物
+  harvest_interval: 300        # 收菜间隔(秒)
+  max_harvest_per_run: 20      # 每次最多收菜数量
+  auto_plant: true             # 收菜后自动种菜
+  default_crop: "小麦"         # 默认种植作物
 
-# 安全配置（防检测）
-safety:
-  random_delay: true          # 启用随机延迟
-  max_steal_per_run: 10       # 单次最大偷菜次数
-  max_bless_per_run: 20       # 单次最大祝福次数
-  operation_interval: 0.5     # 操作间隔（秒）
+# 好友配置
+friends:
+  max_steal_per_run: 10        # 每次最多偷菜数量
+  max_bless_per_run: 20        # 每次最多祝福数量
 
-# 调度配置
-schedule:
-  enable_harvest: true        # 启用自动收菜
-  enable_plant: true          # 启用自动种菜
-  enable_steal: true          # 启用自动偷菜
-  enable_bless: true          # 启用自动祝福
-  plant_cron:                 # 定时种菜（可选）
-    hour: 8                   # 每天早上8点
-    minute: 0
+# 图像识别配置
+vision:
+  default_threshold: 0.8       # 默认匹配阈值
+  wait_timeout: 10.0           # 等待超时时间
+
+# 操作配置
+action:
+  click_delay: 0.3             # 点击后延迟
+  swipe_duration: 0.5          # 滑动持续时间
+  random_delay: true           # 随机延迟(防检测)
+
+# 日志配置
+logging:
+  level: INFO
+  file: logs/app.log
