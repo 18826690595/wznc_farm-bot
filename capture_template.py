@@ -1,205 +1,204 @@
-#!/usr/bin/env python3
 """
-模板截图脚本
-用于截图保存模板图片到 config/templates/ 目录
-
-使用方式：
-    python capture_template.py
-
-然后在交互界面输入参数即可
+模板截图工具 - 全自动版本
+所有参数通过调用时传入，不需要手动输入
 """
 
+import argparse
 import sys
-from pathlib import Path
+from typing import Optional, Tuple
 
-# 添加项目根目录到路径
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from core.device import device_manager
 from tools.template_capture import template_capture
-from loguru import logger
+from core.device import device_manager
 
 
-def connect_device():
+def connect_device(port: int = 7555) -> bool:
     """连接设备"""
-    print("\n=== 连接设备 ===")
-    port = input("ADB端口 (默认7555): ").strip() or "7555"
-    
-    try:
-        device_manager.connect(int(port))
+    print(f"=== 连接设备 ===")
+    print(f"ADB端口: {port}")
+    success = device_manager.connect(port)
+    if success:
         print(f"✓ 已连接设备: 127.0.0.1:{port}")
-        return True
-    except Exception as e:
-        print(f"✗ 连接失败: {e}")
-        return False
+    else:
+        print(f"✗ 连接失败")
+    return success
 
 
-def capture_page_template():
-    """截图保存页面模板"""
-    print("\n=== 截图保存页面模板 ===")
+def capture_page(
+    name: str,
+    port: int = 7555,
+    verify_match: bool = False,
+    overwrite: bool = False,
+) -> Tuple[bool, str]:
+    """
+    截图保存页面模板（全屏）
     
-    name = input("模板名称 (如 main_page): ").strip()
-    if not name:
-        print("✗ 名称不能为空")
-        return
+    参数:
+        name: 模板名称
+        port: ADB端口，默认7555
+        verify_match: 是否验证匹配
+        overwrite: 是否覆盖已存在的模板
+    """
+    if not connect_device(port):
+        return False, "设备连接失败"
     
-    # 是否验证匹配
-    verify = input("是否验证匹配? (y/n, 默认n): ").strip().lower() == 'y'
+    print(f"\n=== 截图保存页面模板 ===")
+    print(f"模板名称: {name}")
+    print(f"验证匹配: {verify_match}")
+    print(f"覆盖已存在: {overwrite}")
     
-    # 是否覆盖
-    overwrite = input("是否覆盖已存在的模板? (y/n, 默认n): ").strip().lower() == 'y'
-    
-    # 执行截图
     success, msg = template_capture.capture_page(
         name=name,
-        verify_match=verify,
-        overwrite=overwrite
+        verify_match=verify_match,
+        overwrite=overwrite,
     )
-    
-    if success:
-        print(f"✓ {msg}")
-    else:
-        print(f"✗ {msg}")
+    print(f"结果: {msg}")
+    return success, msg
 
 
-def capture_button_template():
-    """截图保存按钮模板"""
-    print("\n=== 截图保存按钮模板 ===")
+def capture_button(
+    name: str,
+    region: Optional[Tuple[int, int, int, int]] = None,
+    port: int = 7555,
+    verify_match: bool = False,
+    overwrite: bool = False,
+    threshold: float = 0.8,
+) -> Tuple[bool, str]:
+    """
+    截图保存按钮模板（指定区域）
     
-    name = input("模板名称 (如 harvest_btn): ").strip()
-    if not name:
-        print("✗ 名称不能为空")
-        return
+    参数:
+        name: 模板名称
+        region: 截图区域 (x1,y1,x2,y2)，None表示全屏
+        port: ADB端口，默认7555
+        verify_match: 是否验证匹配
+        overwrite: 是否覆盖已存在的模板
+        threshold: 匹配阈值
+    """
+    if not connect_device(port):
+        return False, "设备连接失败"
     
-    # 截图区域
-    region_str = input("截图区域 (x1,y1,x2,y2, 全屏直接回车): ").strip()
-    region = None
-    if region_str:
-        try:
-            region = tuple(map(int, region_str.split(",")))
-        except:
-            print("✗ 区域格式错误，应为: x1,y1,x2,y2")
-            return
+    print(f"\n=== 截图保存按钮模板 ===")
+    print(f"模板名称: {name}")
+    print(f"截图区域: {region if region else '全屏'}")
+    print(f"验证匹配: {verify_match}")
+    print(f"覆盖已存在: {overwrite}")
     
-    # 是否验证匹配
-    verify = input("是否验证匹配? (y/n, 默认n): ").strip().lower() == 'y'
-    
-    # 是否覆盖
-    overwrite = input("是否覆盖已存在的模板? (y/n, 默认n): ").strip().lower() == 'y'
-    
-    # 执行截图
     success, msg = template_capture.capture_button(
         name=name,
         region=region,
-        verify_match=verify,
-        overwrite=overwrite
+        verify_match=verify_match,
+        overwrite=overwrite,
+        threshold=threshold,
     )
-    
-    if success:
-        print(f"✓ {msg}")
-    else:
-        print(f"✗ {msg}")
+    print(f"结果: {msg}")
+    return success, msg
 
 
-def list_templates():
+def list_templates() -> None:
     """列出所有模板"""
-    print("\n=== 模板列表 ===")
-    
-    pages_dir = project_root / "config" / "templates" / "pages"
-    buttons_dir = project_root / "config" / "templates" / "buttons"
-    
-    print("\n页面模板:")
-    if pages_dir.exists():
-        files = list(pages_dir.glob("*.png"))
-        if files:
-            for f in files:
-                print(f"  - {f.name}")
-        else:
-            print("  (无)")
-    else:
-        print("  (目录不存在)")
-    
-    print("\n按钮模板:")
-    if buttons_dir.exists():
-        files = list(buttons_dir.glob("*.png"))
-        if files:
-            for f in files:
-                print(f"  - {f.name}")
-        else:
-            print("  (无)")
-    else:
-        print("  (目录不存在)")
+    template_capture.list_templates()
 
 
-def delete_template():
-    """删除模板"""
-    print("\n=== 删除模板 ===")
+def delete_template(template_type: str, name: str) -> Tuple[bool, str]:
+    """
+    删除模板
     
-    template_type = input("模板类型 (page/button): ").strip().lower()
-    if template_type not in ['page', 'button']:
-        print("✗ 类型只能是 page 或 button")
+    参数:
+        template_type: 模板类型 (page/button)
+        name: 模板名称
+    """
+    success, msg = template_capture.delete_template(template_type, name)
+    print(f"结果: {msg}")
+    return success, msg
+
+
+def batch_capture(
+    templates: list,
+    port: int = 7555,
+) -> None:
+    """
+    批量截图
+    
+    参数:
+        templates: 模板列表，每个元素是字典
+            [{"type": "page", "name": "xxx", "region": (x1,y1,x2,y2), "verify": True}, ...]
+        port: ADB端口
+    """
+    if not connect_device(port):
+        print("设备连接失败，批量截图终止")
         return
     
-    name = input("模板名称: ").strip()
-    if not name:
-        print("✗ 名称不能为空")
-        return
+    print(f"\n=== 批量截图 ({len(templates)}个模板) ===")
     
-    success, msg = template_capture.delete_template(name, template_type)
-    
-    if success:
-        print(f"✓ {msg}")
-    else:
-        print(f"✗ {msg}")
-
-
-def interactive_mode():
-    """交互模式"""
-    print("\n" + "=" * 50)
-    print("   王者荣耀农场 - 模板截图工具")
-    print("=" * 50)
-    
-    while True:
-        print("\n请选择操作:")
-        print("  1. 截图保存页面模板 (全屏)")
-        print("  2. 截图保存按钮模板 (指定区域)")
-        print("  3. 查看模板列表")
-        print("  4. 删除模板")
-        print("  5. 重新连接设备")
-        print("  0. 退出")
+    for i, item in enumerate(templates, 1):
+        print(f"\n[{i}/{len(templates)}]")
         
-        choice = input("\n请输入选项 (0-5): ").strip()
+        template_type = item.get("type", "button")
+        name = item.get("name")
+        region = item.get("region")
+        verify = item.get("verify", False)
+        overwrite = item.get("overwrite", False)
         
-        if choice == '0':
-            print("\n再见！")
-            break
-        elif choice == '1':
-            capture_page_template()
-        elif choice == '2':
-            capture_button_template()
-        elif choice == '3':
-            list_templates()
-        elif choice == '4':
-            delete_template()
-        elif choice == '5':
-            connect_device()
+        if not name:
+            print("✗ 缺少模板名称，跳过")
+            continue
+        
+        if template_type == "page":
+            capture_page(name, port, verify, overwrite)
         else:
-            print("✗ 无效选项")
+            capture_button(name, region, port, verify, overwrite)
 
 
 def main():
-    """主入口"""
-    # 先连接设备
-    if not connect_device():
-        print("\n无法连接设备，请检查:")
-        print("  1. MuMu模拟器是否启动")
-        print("  2. ADB调试是否开启")
-        print("  3. ADB端口是否正确")
-        return
+    """命令行入口"""
+    parser = argparse.ArgumentParser(description="模板截图工具 - 全自动版本")
     
-    # 进入交互模式
-    interactive_mode()
+    # 基础参数
+    parser.add_argument("--port", type=int, default=7555, help="ADB端口，默认7555")
+    
+    # 操作类型
+    subparsers = parser.add_subparsers(dest="action", help="操作类型")
+    
+    # 截图页面模板
+    page_parser = subparsers.add_parser("page", help="截图页面模板")
+    page_parser.add_argument("name", help="模板名称")
+    page_parser.add_argument("--verify", action="store_true", help="验证匹配")
+    page_parser.add_argument("--overwrite", action="store_true", help="覆盖已存在")
+    
+    # 截图按钮模板
+    button_parser = subparsers.add_parser("button", help="截图按钮模板")
+    button_parser.add_argument("name", help="模板名称")
+    button_parser.add_argument("--region", type=str, help="截图区域 x1,y1,x2,y2")
+    button_parser.add_argument("--verify", action="store_true", help="验证匹配")
+    button_parser.add_argument("--overwrite", action="store_true", help="覆盖已存在")
+    
+    # 列出模板
+    subparsers.add_parser("list", help="列出所有模板")
+    
+    # 删除模板
+    delete_parser = subparsers.add_parser("delete", help="删除模板")
+    delete_parser.add_argument("type", choices=["page", "button"], help="模板类型")
+    delete_parser.add_argument("name", help="模板名称")
+    
+    args = parser.parse_args()
+    
+    if args.action == "page":
+        capture_page(args.name, args.port, args.verify, args.overwrite)
+    
+    elif args.action == "button":
+        region = None
+        if args.region:
+            region = tuple(map(int, args.region.split(",")))
+        capture_button(args.name, region, args.port, args.verify, args.overwrite)
+    
+    elif args.action == "list":
+        list_templates()
+    
+    elif args.action == "delete":
+        delete_template(args.type, args.name)
+    
+    else:
+        parser.print_help()
 
 
 if __name__ == "__main__":
